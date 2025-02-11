@@ -449,6 +449,14 @@ std::string GetPrimeChainName(unsigned int nChainType, unsigned int nChainLength
  return std::string(buffer);
 }
 
+std::string GetPrimeChainNameCuda(unsigned int nChainType, unsigned int nChainLength) {
+  const std::string strLabels[3] = {"1CC", "2CC", "TWN"};
+  unsigned int index = std::min(nChainType, 2u);
+  char buffer[64];
+  std::snprintf(buffer, sizeof(buffer), "%s%s", strLabels[index].c_str(), TargetToString(nChainLength).c_str());
+  return std::string(buffer);
+}
+
 bool MineProbablePrimeChainFast(PrimecoinBlockHeader &header,
                                 CSieveOfEratosthenesL1Ext *sieve,
                                 mpz_class &blockHeaderHash,
