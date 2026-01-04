@@ -1039,7 +1039,7 @@ int main(int argc, char **argv) {
     const char *options[] = { ccoption, arguments.c_str() };
     CUDA_SAFE_CALL(cuCtxSetCurrent(gpus[i].context));
     if (!cudaCompileKernel(kernelname,
-        { "xpm/cuda/config.cu", "xpm/cuda/procs.cu", "xpm/cuda/fermat.cu", "xpm/cuda/sieve.cu", "xpm/cuda/sha256.cu", "xpm/cuda/benchmarks.cu"},
+        { "xpm/cuda/helpers.cu", "xpm/cuda/config.cu", "xpm/cuda/procs.cu", "xpm/cuda/fermat.cu", "xpm/cuda/sieve.cu", "xpm/cuda/sha256.cu", "xpm/cuda/benchmarks.cu"},
         options,
         arguments.empty() ? 1 : 2,
         &modules[i],
@@ -1052,10 +1052,16 @@ int main(int argc, char **argv) {
   int depth = 5 - 1;
   depth = std::max(depth, 2);
   depth = std::min(depth, 5);
-  for (unsigned i = 0; i < 0; i++) {
-    cudaRunBenchmarks(gpus[i].context, gpus[i].device, modules[i], depth, clKernelLSize);
+
+  if (isBenchmark) {
+    // Run benchmarks and exit
+    for (unsigned i = 0; i < gpus.size(); i++) {
+      cudaRunBenchmarks(gpus[i].context, gpus[i].device, modules[i], depth, clKernelLSize);
+    }
+    return 0;
   }
 
+  // Normal mining mode
   unsigned int sievePerRound = 5;
   for(unsigned i = 0; i < gpus.size(); ++i) {
       PrimeMiner* miner = new PrimeMiner(i, gpus.size(), sievePerRound, depth, clKernelLSize);
